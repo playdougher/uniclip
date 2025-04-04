@@ -355,7 +355,7 @@ func runGetClipCommand() string {
 		return "An error occurred wile getting the local clipboard"
 	}
 	if runtime.GOOS == "windows" {
-		return strings.TrimSuffix(string(out), "\r\n") // powershell's get-clipboard adds a windows newline to the end for some reason
+		return strings.ReplaceAll(string(out), "\r\n", "\n") // powershell's get-clipboard adds a windows newline to the end for some reason
 	}
 	return string(out)
 }
