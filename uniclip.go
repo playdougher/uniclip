@@ -339,7 +339,7 @@ func runGetClipCommand() string {
 		cmd = exec.Command("powershell.exe", "-command", "Get-Clipboard")
 	default:
 		if _, err = exec.LookPath("xclip"); err == nil {
-			cmd = exec.Command("xclip", "-r", "-out", "-selection", "clipboard")
+			cmd = exec.Command("xclip", "-out", "-selection", "clipboard")
 		} else if _, err = exec.LookPath("xsel"); err == nil {
 			cmd = exec.Command("xsel", "--output", "--clipboard")
 		} else if _, err = exec.LookPath("wl-paste"); err == nil {
@@ -356,7 +356,9 @@ func runGetClipCommand() string {
 		return "An error occurred wile getting the local clipboard"
 	}
 	if runtime.GOOS == "windows" {
-		return strings.TrimSuffix(string(out), "\r\n") // powershell's get-clipboard adds a windows newline to the end for some reason
+    str := string(out)
+    str = strings.ReplaceAll(str, "\r\n", "\n") // powershell's get-clipboard transfers "\n" to "\r\n" and adds a windows newline "\r\n" to the end for some reason, so transfer it back
+    return strings.TrimSuffix(str, "\n")
 	}
 	return string(out)
 }
@@ -378,7 +380,7 @@ func setLocalClip(s string) {
 		copyCmd = exec.Command("clip")
 	default:
 		if _, err := exec.LookPath("xclip"); err == nil {
-			copyCmd = exec.Command("xclip", "-r", "-in", "-selection", "clipboard")
+			copyCmd = exec.Command("xclip", "-in", "-selection", "clipboard")
 		} else if _, err = exec.LookPath("xsel"); err == nil {
 			copyCmd = exec.Command("xsel", "--input", "--clipboard")
 		} else if _, err = exec.LookPath("wl-copy"); err == nil {
@@ -435,7 +437,8 @@ func handleError(err error) {
 
 func debug(a ...interface{}) {
 	if printDebugInfo {
-		fmt.Println("verbose:", a)
+		//		fmt.Println("verbose:", a)
+		fmt.Printf("%q\n", fmt.Sprint(a))
 	}
 }
 
